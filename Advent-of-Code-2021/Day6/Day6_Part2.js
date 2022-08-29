@@ -1,95 +1,29 @@
-const { input } = require('./input');
-let overlappingPoints = 0;
-var grid;
-let maxGrid = 0;
+var { input } = require('./input');
+let newFish = 0;
+let fishes = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
+var changeFish = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
 
-
-createGrid();
-
-for (let { from, to } of input) {
-    let [x1, y1] = from;
-    let [x2, y2] = to;
-    if (!(x1 == x2 || y1 == y2)) {
-        markToGridDiagonal(x1,x2,y1,y2);
-        continue;
-    }
-    if (x1 == x2) {
-        markToGridX(x1,y1,y2);
-        continue;
-    }
-    if (y1 == y2) {
-        markToGridY(x1,y1,x2);
-        continue;
-    }
+for (fish of input) {
+    fishes[fish] += 1;
 }
 
-function markToGridDiagonal(x1, x2, y1, y2) {
-    let [startX, startY] = [0,0];
-    let [endX, endY] = [0,0];
-    if (x1<x2) {
-        [startX, startY] = [x1, y1];
-        [endX, endY] = [x2, y2];
-    }
-    else {
-        [startX, startY] = [x2, y2];
-        [endX, endY] = [x1, y1];
-    }
-    let j = startY;
-    for (let i = startX; i <= endX; i++) {
-        if (startY<endY) {
-            grid[j][i] == '.' ? (grid[j][i] = 1) : grid[j][i]++;
-            j++;
-        } else {
-            grid[j][i] == '.' ? (grid[j][i] = 1) : grid[j][i]++;
-            j--;
+
+for (i = 0; i < 256; i++) {
+    changeFish = {...fishes}
+    for (f = 8; f > 0; f--) {
+        if (fishes[f] != 0) {
+            changeFish[f] -= fishes[f];
+            changeFish[f-1] += fishes[f];
         }
     }
-};
 
-function markToGridX(x, y1, y2) {
-    let min = Math.min(y1, y2);
-    let max = Math.max(y1, y2);
-    for (let i = min; i <= max; i++) {
-        grid[i][x] == '.' ? (grid[i][x] = 1) : grid[i][x]++;
+    if (fishes[0] != 0) {
+        newFish += fishes[0];
+        changeFish[8] = fishes[0];
+        changeFish[6] += fishes[0];
+        changeFish[0] -= fishes[0];
     }
-};
-
-function markToGridY(x1, y, x2) {
-    let min = Math.min(x1, x2);
-    let max = Math.max(x1, x2);
-    for (let i = min; i <= max; i++) {
-        grid[y][i] == '.' ? (grid[y][i] = 1) : grid[y][i]++;
-    }
-};
-
-function createGrid() {
-    for (let line of input) {
-        let num = [line.from[0],line.to[0],line.from[1],line.to[1]]
-        Math.max(...num) > maxGrid && (maxGrid = Math.max(...num));
-    };
-    grid =  Array.from(Array(maxGrid+1), () => {
-        return new Array(maxGrid+1).fill('.')
-    })
+    fishes = {...changeFish};
 }
 
-function printGrid() {
-    for (let line of grid) {
-        let row = ''
-        for (let point of line) {
-            row += point + ' '
-        }
-        console.log(row)
-    }
-}
-
-function countThePoints() {
-    for (let line of grid) {
-        for (let point of line) {
-            point > 1 && overlappingPoints++
-        }
-    }
-}
-
-countThePoints();
-//printGrid();
-console.log(overlappingPoints);
+console.log(input.length + newFish);
