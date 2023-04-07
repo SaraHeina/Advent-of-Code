@@ -1,5 +1,4 @@
 const { input } = require('./input');
-//const { Grid } = require('./Grid');
 
 let smallVisited = [];
 let count = 0;
