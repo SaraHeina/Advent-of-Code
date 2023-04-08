@@ -1,48 +1,64 @@
-const { input } = require('./input');
+let { input } = require('./input');
+const { ending } = require('./input');
 const { Grid } = require('./Grid');
 
-let glowMap = new Grid(input);
-let flashMap = new Grid(input);
-Create0FlashMap();
+let max = getMax(input);
+let sheet = new Grid(input, max);
 
-let step = 0
+for (let e of ending) {
+    if (e[0] == 'y') {
+        input = FoldY(e[1])
+        let m = max
+        m[1] = e[1] - 1
+        sheet = new Grid(input, m)
+    }
+    if (e[0] == 'x') {
+        input = FoldX(e[1])
+        let m = max
+        m[0] = e[1] - 1
+        sheet = new Grid(input, m)
+    }
+}
+
+sheet.toString();
+console.log(sheet.countDots())
 
 
-while (glowMap.gridZero() === false) {
-    for (let g of glowMap.grid) {
-        if (flashMap.getValue(g.index.x, g.index.y) == 0) {
-            if (g.value == 9) {flashMap.set(g.index.x, g.index.y, 1)}
-            Flash(g);
+
+function FoldX(x) {
+    let newImput = new Array();
+
+    for (let dot of input) {
+        if (dot[0] > x) {
+            let newDot = dot
+            newDot[0] = sheet.max[0] - dot[0];
+            newImput.push(newDot)
         }
+        else { newImput.push(dot) }
     }
-    step += 1;
-    Create0FlashMap();
+    return newImput;
 }
 
-function Flash(gridPoint) {
-    let x = gridPoint.index.x;
-    let y = gridPoint.index.y;
-    if (gridPoint.value < 9) {
-        let val = gridPoint.value + 1;
-        glowMap.set(x, y, val)
-    }
-    else if (gridPoint.value == 9) {
-        flashMap.set(x, y, 1)
-        let val = 0;
-        glowMap.set(x, y, val)
-        let neighbors = glowMap.neighbors(x, y);
-        for (n of neighbors) {
-            if (flashMap.getValue(n.index.x, n.index.y) == 0) {
-                Flash(n);
-            }
+function FoldY(y) {
+    let newImput = new Array();
+
+    for (let dot of input) {
+        if (dot[1] > y) {
+            let newDot = dot
+            newDot[1] = sheet.max[1] - dot[1];
+            newImput.push(newDot)
         }
+        else { newImput.push(dot) }
     }
+    return newImput;
 }
 
-function Create0FlashMap() {
-    for (let g of flashMap.grid) {
-        flashMap.set(g.index.x, g.index.y, 0)
+function getMax(input) {
+    let max_x = 0;
+    let max_y = 0;
+    for (let line of input) {
+        if (line[0] > max_x) { max_x = line[0] }
+        if (line[1] > max_y) { max_y = line[1] }
     }
+    return [max_x, max_y]
 }
-
-console.log(step);
