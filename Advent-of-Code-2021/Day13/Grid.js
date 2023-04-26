@@ -3,8 +3,6 @@ class Grid {
         this.grid = NewGrid(input, m);
         this.input = input
         this.max = m;
-        this.min_x = 0;
-        this.min_y = 0;
     };
 
     toString() {
